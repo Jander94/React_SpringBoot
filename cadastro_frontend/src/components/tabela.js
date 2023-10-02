@@ -14,11 +14,11 @@ import { Button, DivInput, Input, Label, Td, Th } from "../style/style";
 export default function Tabela({ buscar, setBuscar }) {
   const [dados, setDados] = useState();
   const [showModal, setShowModal] = useState(false);
-  const [nome, setNome] = useState();
-  const [idade, setIdade] = useState();
-  const [cpf, setCpf] = useState();
-  const [estadoCivil, setEstadoCivil] = useState();
-  const [id, setId] = useState();
+  const [nome, setNome] = useState("");
+  const [idade, setIdade] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [estadoCivil, setEstadoCivil] = useState("");
+  const [id, setId] = useState("");
 
   useEffect(() => {
     carregarDados();
@@ -53,12 +53,12 @@ export default function Tabela({ buscar, setBuscar }) {
     setShowModal(true);
     try {
       const pessoa = await getPessoaId(id);
-      if (pessoa?.body) {
-        setNome(pessoa?.body?.nome);
-        setIdade(pessoa?.body?.idade);
-        setCpf(pessoa?.body?.cpf);
-        setEstadoCivil(pessoa?.body?.estadoCivil);
-        setId(pessoa?.body?.id);
+      if (pessoa) {
+        setNome(pessoa?.nome);
+        setIdade(pessoa?.idade);
+        setCpf(pessoa?.cpf);
+        setEstadoCivil(pessoa?.estadoCivil);
+        setId(pessoa?.id);
       }
     } catch (e) {
       console.log("ERRO :>> ", e);
@@ -76,9 +76,10 @@ export default function Tabela({ buscar, setBuscar }) {
       await updatePessoa(id, data);
     } catch (e) {
       console.log("ERRO :>> ", e);
+    } finally {
+      carregarDados();
+      setShowModal(false);
     }
-    carregarDados();
-    setShowModal(false);
   };
 
   function renderItens() {
@@ -142,6 +143,7 @@ export default function Tabela({ buscar, setBuscar }) {
         isOpen={showModal}
         onRequestClose={() => setShowModal(false)}
         style={customStyles}
+        ariaHideApp={false}
       >
         <div>
           <h1 style={{ fontWeight: "bold", color: "#2f4f4f" }}>
