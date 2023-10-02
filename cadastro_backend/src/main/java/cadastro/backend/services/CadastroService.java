@@ -8,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,23 +45,22 @@ public class CadastroService {
     }
 
 
-    public ResponseEntity<Object> findById(UUID id) {
-        Optional<CadastroModel> cadastroModelOptional = cadastroRepository.findById(id);
-        if(cadastroModelOptional.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ID não encontrado.");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(cadastroModelOptional.get());
+    public ResponseEntity<CadastroModel> findById(UUID id) {
+        CadastroModel cadastroModel = cadastroRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID INVÁLIDO"));
+        return ResponseEntity.status(HttpStatus.OK).body(cadastroModel);
     }
 
     public void deleteById(UUID id) {
         cadastroRepository.deleteById(id);
     }
 
-    public CadastroModel updateCadastro(UUID id, CadastroDto cadastroDto) {
-        Optional<CadastroModel> cadastroModelOptional2 = cadastroRepository.findById(id);
+    public ResponseEntity<CadastroModel> updateCadastro(UUID id, CadastroDto cadastroDto) {
+        CadastroModel pessoa = cadastroRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID INVÁLIDO."));
         var cadastroModel = new CadastroModel();
         BeanUtils.copyProperties(cadastroDto, cadastroModel);
-        cadastroModel.setId(cadastroModelOptional2.get().getId());
-        return cadastroRepository.save(cadastroModel);
+        cadastroModel.setId(pessoa.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(cadastroRepository.save(cadastroModel));
     }
 }
